@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:model="clr-namespace:Cerebrum.Core.Model"
+             xmlns:viewmodel="clr-namespace:Cerebrum.Core.ViewModel"
+             x:DataType="viewmodel:MainPageViewModel"
+             x:Class="Cerebrum.Core.View.MainPage"
+             Title="MainPage"  
+             BackgroundColor="{StaticResource Light}">
+
+    <ContentPage.Resources>
+        <Style TargetType="Entry">
+            <Setter Property="PlaceholderColor" Value="{StaticResource Primary}"></Setter>
+        </Style>
+
+        <Style TargetType="Picker">
+            <Setter Property="HorizontalOptions" Value="FillAndExpand"></Setter>
+            <Setter Property="TitleColor" Value="{StaticResource Primary}"></Setter>
+        </Style>
+    </ContentPage.Resources>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Додати" Command="{Binding AddItemCommand}" />
+    </ContentPage.ToolbarItems>
+
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+            <ColumnDefinition Width="7*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Frame Grid.Column="0" Grid.Row="0" 
+            CornerRadius="10" 
+                 Margin="2,2,2,2"
+               Padding="5,5,5,5"
+                 BackgroundColor="{StaticResource Light}"
+               BorderColor="{StaticResource Primary}">
+
+            <ScrollView VerticalScrollBarVisibility="Never">
+                <StackLayout Spacing="5"
+                             Padding="2,2,2,2">
+
+                    <Entry Placeholder="Пошук за текстом"
+                          ></Entry>
+
+                    <Picker Title="Розділ"></Picker>
+
+                    <Picker Title="Тег (стаття)"></Picker>
+
+                    <Picker Title="Тип рішення"></Picker>
+
+                    <Picker Title="Видавник"></Picker>
+
+                </StackLayout>
+               
+            </ScrollView>
+
+        </Frame>
+
+        <Frame Grid.Column="0" Grid.Row="1" 
+            CornerRadius="10" 
+                 Margin="2,2,2,2"
+                Padding="2,2,2,2"
+                 BackgroundColor="{StaticResource Light}"
+               BorderColor="{StaticResource Primary}">
+            <StackLayout 
+                Orientation="Vertical" 
+                Spacing="5"
+                Padding="2,2,2,2">
+                <Button Text="Пошук"></Button>
+                <Button Text="Очистити"></Button>
+            </StackLayout>
+           
+
+        </Frame>
+
+        <Frame Grid.Column="1" Grid.RowSpan="2" 
+            CornerRadius="10" 
+                 Margin="2,2,2,2"
+                 BackgroundColor="{StaticResource Light}"
+               BorderColor="{StaticResource Primary}">
+
+            <CollectionView x:Name="ItemsListView"
+                ItemsSource="{Binding Items}"
+                SelectionMode="None"
+                HorizontalOptions="FillAndExpand">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <ContentView>
+
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                </Grid.RowDefinitions>
+                        
+                            <Frame Grid.Row="0" x:DataType="model:ObjectSoketClass" HasShadow="True" CornerRadius="15" Margin="2" Padding="20">
+                                
+
+                                    <Label Text="{Binding Description}" 
+                            LineBreakMode="NoWrap" 
+                            Style="{DynamicResource ListItemTextStyle}" 
+                            FontSize="20" />
+
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer 
+                                NumberOfTapsRequired="1"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:MainPageViewModel}}, Path=SingleItemTapped}"		
+                                CommandParameter="{Binding .}">
+                                    </TapGestureRecognizer>
+                                    <TapGestureRecognizer
+                                NumberOfTapsRequired="2"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:MainPageViewModel}}, Path=DoubleItemTapped}"		
+                                CommandParameter="{Binding .}">
+                                    </TapGestureRecognizer>
+                                </Frame.GestureRecognizers>
+                            </Frame>
+                            </Grid>
+
+                        </ContentView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Frame>
+
+    </Grid>
+    
+</ContentPage>
