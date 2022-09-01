@@ -1,6 +1,8 @@
 ﻿
 using Cerebrum.Core.Model;
 using SQLite;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Cerebrum.Core.Servises
 {
@@ -57,9 +59,78 @@ namespace Cerebrum.Core.Servises
             }
 
         }
-        public Task<List<ObjectClass>> GetObjectsAsync()
+
+        public async Task<int> GetLastOblectIndex()
         {
-            return objectDataBase.Table<ObjectClass>().ToListAsync();
+            try
+            {
+                var list = await GetObjectsAsync();
+                return list.Last().N;
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        public async Task<List<ObjectClass>> GetObjectsAsync()
+        {
+            return await objectDataBase.Table<ObjectClass>().ToListAsync();
+        }
+
+        public async Task<List<string>> GetTypes()
+        {
+            List<string> result = new List<string>();
+            try
+            {
+                foreach (var item in await GetObjectsAsync())
+                {
+                    if (!String.IsNullOrWhiteSpace(item.Type))
+                    {
+                        result.Add(item.Type);
+                    }
+                   
+                }  
+            }
+            catch
+            {
+                return null;
+            }
+
+            if (result.Count > 0)
+            {
+                result = result.Distinct().ToList();
+                result = result.OrderBy(x => x).ToList();
+            }
+            
+            return result;
+        }
+
+        public async Task<List<string>> GetAuthorities()
+        {
+            List<string> result = new List<string>();
+            try
+            {
+                foreach (var item in await GetObjectsAsync())
+                {
+                    if (!String.IsNullOrWhiteSpace(item.Authority))
+                    {
+                        result.Add(item.Authority);
+                    }
+                }
+            }
+            catch
+            {
+                return null;
+            }
+
+            if (result.Count > 0)
+            {
+                result = result.Distinct().ToList();
+                result = result.OrderBy(x => x).ToList();
+            }
+
+            return result;
         }
 
         #endregion
@@ -104,6 +175,11 @@ namespace Cerebrum.Core.Servises
         public Task<List<TegClass>> GetTegsAsync()
         {
             return tegDataBase.Table<TegClass>().ToListAsync();
+        }
+
+        public Task<List<TegClass>> GetTegsByIdAsync(int _id)
+        {
+            return tegDataBase.Table<TegClass>().Where(x => x.Id == _id).ToListAsync();
         }
 
 

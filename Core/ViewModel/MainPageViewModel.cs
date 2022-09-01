@@ -31,9 +31,27 @@ namespace Cerebrum.Core.ViewModel
             var items = await App.DataBase.GetObjectsAsync();
             foreach(var item in items)
             {
-                Items.Add(new ObjectSoketClass(item));
+                ObjectSoketClass objectSoketClass = new ObjectSoketClass(item);
+                var tegs = await App.DataBase.GetTegsByIdAsync(item.N);
+                if (tegs.Count > 0)
+                {
+                    foreach (var teg in tegs)
+                    {
+                        if (teg.Key == "ключове слово")
+                        {
+                            objectSoketClass.Tegs = objectSoketClass.Tegs + $"#{teg.Value}  ";
+                        }
+                        else if (teg.Key == "судова справа")
+                        {
+                        }
+                        else
+                        {
+                            objectSoketClass.Tegs = objectSoketClass.Tegs + $"#{teg.Value}{teg.Key}  ";
+                        }
+                    }
+                }
+                Items.Add(objectSoketClass);
             }  
-
         }
 
 
@@ -79,7 +97,5 @@ namespace Cerebrum.Core.ViewModel
         {
             await Shell.Current.GoToAsync($"{nameof(AddPage)}?{nameof(AddViewModel.Id)}={-1}");
         }
-
-
     }
 }

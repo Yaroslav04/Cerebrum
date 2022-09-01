@@ -5,12 +5,12 @@ namespace Cerebrum.Core.Servises
     {
         public static string DataPath()
         {
-            return @"/storage/emulated/0/Proviser2/";
+            return @"D:\CerebrumDB";
         }
 
         public static string DataPath(string _file)
         {
-            return Path.Combine(@"/storage/emulated/0/Proviser2/", _file);
+            return Path.Combine(@"D:\CerebrumDB", _file);
         }
 
         public static string AppPath()

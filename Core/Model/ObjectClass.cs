@@ -19,5 +19,6 @@ namespace Cerebrum.Core.Model
         public string Authority { get; set; }
         public string Type { get; set; }
         public string Content { get; set; }
+        public DateTime SaveDate { get; set; }
     }
 }
