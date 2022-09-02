@@ -20,6 +20,7 @@
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Папка" Command="{Binding OpenAppFolderCommand}" />
         <ToolbarItem Text="Редагувати" Command="{Binding EditItemCommand}" />
         <ToolbarItem Text="Додати" Command="{Binding AddItemCommand}" />
     </ContentPage.ToolbarItems>

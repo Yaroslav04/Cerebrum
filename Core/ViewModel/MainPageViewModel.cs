@@ -21,7 +21,7 @@ namespace Cerebrum.Core.ViewModel
             DoubleItemTapped = new Command<ObjectSoketClass>(DoubleTapped);
             AddItemCommand = new Command(Add);
             EditItemCommand = new Command(Edit);
-
+            OpenAppFolderCommand = new Command(OpenAppFolder);
             Items = new ObservableCollection<ObjectSoketClass>();
             SearchTypeItems = new ObservableCollection<string>
             {
@@ -141,6 +141,8 @@ namespace Cerebrum.Core.ViewModel
         public Command<ObjectSoketClass> DoubleItemTapped { get; }
         public Command SearchCommand { get; }
         public Command ClearCommand { get; }
+
+        public Command OpenAppFolderCommand { get; }
 
         #endregion
 
@@ -507,6 +509,11 @@ namespace Cerebrum.Core.ViewModel
             }
 
             return list;
+        }
+
+        private void OpenAppFolder()
+        {
+            Process.Start("explorer.exe", FileManager.AppPath());
         }
 
     }

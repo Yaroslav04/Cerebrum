@@ -8,6 +8,11 @@
              Title="{Binding Title}"
              BackgroundColor="{StaticResource Light}">
 
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Видалити" Command="{Binding DeleteCommand}" />
+    </ContentPage.ToolbarItems>
+
+
     <Grid RowSpacing="20" Padding="5,5,5,5">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
@@ -178,7 +183,7 @@
                 <ColumnDefinition Width="1*"></ColumnDefinition>
                 <ColumnDefinition Width="1*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Button Command="{Binding SaveCommand}" Text="Зберегти" Grid.Row="0"></Button>
+            <Button Command="{Binding SaveCommand}" Text="{Binding SaveButtonName}" Grid.Row="0"></Button>
             <Button Command="{Binding ClearCommand}" Text="Очистити" Grid.Column="1" ></Button>
         </Grid>
     </Grid>

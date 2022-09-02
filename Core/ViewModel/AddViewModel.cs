@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Formats.Asn1;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Text;
@@ -17,6 +18,8 @@ namespace Cerebrum.Core.ViewModel
         public AddViewModel()
         {
             SaveCommand = new Command(Save);
+            DeleteCommand = new Command(Delete);
+
             ClearCommand = new Command(async () => await Clear());
             AddTegCommand = new Command(AddTeg);
             AddTypeCommand = new Command(AddType);
@@ -28,8 +31,8 @@ namespace Cerebrum.Core.ViewModel
             TypeItems = new ObservableCollection<string>();
             TegItems = new ObservableCollection<TegClass>();
             KeyTegItems = new ObservableCollection<string>(App.Tegs);
-            FileItems = new ObservableCollection<FileClass>();    
-            
+            FileItems = new ObservableCollection<FileClass>();
+
             Debug.WriteLine(FileManager.AppPath());
         }
 
@@ -46,22 +49,34 @@ namespace Cerebrum.Core.ViewModel
             }
         }
 
+        private string saveButtonName;
+        public string SaveButtonName
+        {
+            get => saveButtonName;
+            set
+            {
+                SetProperty(ref saveButtonName, value);
+            }
+        }
+
         private async void Load(string value)
         {
             await LoadAuthNType();
 
-            if (id == "-1")
+            if (value == "-1")
             {
                 Title = "Додати картку";
+                SaveButtonName = "Зберегти";
                 await Clear();
             }
             else
             {
                 Title = "Редагувати картку";
-                await Clear();      
+                SaveButtonName = "Оновити";
+                await Clear();
                 var item = await App.DataBase.GetObjectAsync(int.Parse(value));
                 DescriptionPanel = item.Description;
-                IdentificationPanel =item.Identification;
+                IdentificationPanel = item.Identification;
                 DocumentDatePanel = item.DocumentDate.ToShortDateString();
                 SelectedAuthority = item.Authority;
                 SelectedType = item.Type;
@@ -70,25 +85,33 @@ namespace Cerebrum.Core.ViewModel
                 var tegs = await App.DataBase.GetTegsByIdAsync(int.Parse(value));
                 if (tegs != null)
                 {
-                    foreach(var teg in tegs)
+                    foreach (var teg in tegs)
                     {
                         TegItems.Add(teg);
                     }
                 }
 
-                var files = Directory.GetFiles(Path.Combine(FileManager.DataPath(), item.N.ToString()));
-                if (files.Length > 0)
+                try
                 {
-                    foreach (var file in files)
+                    var files = Directory.GetFiles(Path.Combine(FileManager.DataPath(), item.N.ToString()));
+                    if (files.Length > 0)
                     {
-
-                        FileItems.Add(new FileClass
+                        foreach (var file in files)
                         {
-                            Name = Path.GetFileName(file),
-                            Path = file
-                        });
+
+                            FileItems.Add(new FileClass
+                            {
+                                Name = Path.GetFileName(file),
+                                Path = file
+                            });
+                        }
                     }
                 }
+                catch
+                {
+
+                }
+                
             }
         }
 
@@ -236,6 +259,8 @@ namespace Cerebrum.Core.ViewModel
         #region Command
 
         public Command SaveCommand { get; }
+        public Command DeleteCommand { get; }
+
         public Command ClearCommand { get; }
         public Command AddTegCommand { get; }
         public Command AddTypeCommand { get; }
@@ -310,50 +335,94 @@ namespace Cerebrum.Core.ViewModel
             }
             else
             {
-                await App.DataBase.SaveObjectAsync(objectClass);
-
-                var index = await App.DataBase.GetLastOblectIndex();
-                if (index != -1)
+                if (Id == "-1")
                 {
-                    foreach (var teg in TegItems)
+                    await App.DataBase.SaveObjectAsync(objectClass);
+
+                    var index = await App.DataBase.GetLastOblectIndex();
+                    if (index != -1)
                     {
-                        TegClass tegClass = new TegClass();
-                        tegClass.Id = index;
-                        tegClass.Key = teg.Key;
-                        tegClass.Value = teg.Value;
-                        await App.DataBase.SaveTegAsync(tegClass);
-                    }
-
-                    if (FileItems.Count > 0)
-                    {
-                        try
+                        foreach (var teg in TegItems)
                         {
-                            Directory.CreateDirectory(FileManager.DataPath(index.ToString()));
-
-                        }
-                        catch
-                        {
-
+                            TegClass tegClass = new TegClass();
+                            tegClass.Id = index;
+                            tegClass.Key = teg.Key;
+                            tegClass.Value = teg.Value;
+                            await App.DataBase.SaveTegAsync(tegClass);
                         }
 
-                        foreach (var file in FileItems)
+                        if (FileItems.Count > 0)
                         {
                             try
                             {
-                                File.Copy(file.Path, FileManager.DataPath(Path.Combine(index.ToString(), file.Name)));
+                                Directory.CreateDirectory(FileManager.DataPath(index.ToString()));
+
                             }
-                            catch (Exception ex)
+                            catch
                             {
-                                Debug.WriteLine(ex.Message);
+
                             }
 
-                            if (IsFileDelete)
+                            foreach (var file in FileItems)
                             {
-                                File.Delete(file.Path);
+                                try
+                                {
+                                    File.Copy(file.Path, FileManager.DataPath(Path.Combine(index.ToString(), file.Name)));
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.WriteLine(ex.Message);
+                                }
+
+                                if (IsFileDelete)
+                                {
+                                    File.Delete(file.Path);
+                                }
                             }
                         }
                     }
                 }
+                else
+                {
+                    objectClass.N = int.Parse(Id);
+                    await App.DataBase.UpdateObjectAsync(objectClass);
+
+                    var savedTegs = await App.DataBase.GetTegsByIdAsync(int.Parse(Id));
+                    if (savedTegs != null)
+                    {
+                        foreach (var teg in savedTegs)
+                        {
+                            bool sw = false;
+
+                            foreach (var item in TegItems)
+                            {
+                                if (teg.Key == item.Key)
+                                {
+                                    if (teg.Value == item.Value)
+                                    {
+                                        sw = true;
+                                    }
+                                }
+                            }
+
+                            if (sw == false)
+                            {
+                                await App.DataBase.DeleteTegAsync(teg);
+                            }
+
+                        }
+                    }
+
+
+                    foreach (var teg in TegItems)
+                    {
+                        if (teg.Id == -1)
+                        {
+                            teg.Id = int.Parse(Id);
+                            await App.DataBase.SaveTegAsync(teg);
+                        }
+                    }
+                }            
             }
 
             await Clear();
@@ -381,6 +450,7 @@ namespace Cerebrum.Core.ViewModel
                     TegItems.Add(
                 new TegClass
                 {
+                    Id = -1,
                     Key = SelectedKeyTeg,
                     Value = ValueTeg
                 }
@@ -457,6 +527,15 @@ namespace Cerebrum.Core.ViewModel
         {
             if (item != null)
             {
+                DeleteTeg(item);
+            }
+        }
+
+        private async void DeleteTeg(TegClass item)
+        {
+            bool answer = await Shell.Current.DisplayAlert("Видалення", $"Видалити тег {item.Key} {item.Value}?", "Так", "Ні");
+            if (answer)
+            {
                 TegItems.Remove(item);
             }
         }
@@ -465,8 +544,41 @@ namespace Cerebrum.Core.ViewModel
         {
             if (item != null)
             {
+                DeleteFile(item);
+            }
+        }
+
+        private async void DeleteFile(FileClass item)
+        {
+            bool answer = await Shell.Current.DisplayAlert("Видалення", $"Видалити файл {item.Name}?", "Так", "Ні");
+            if (answer)
+            {
                 FileItems.Remove(item);
             }
         }
+
+        private async void Delete()
+        {
+            if (Id != "-1")
+            {
+                bool answer = await Shell.Current.DisplayAlert("Видалення", $"Видалити картку?", "Так", "Ні");
+                if (answer)
+                {
+                    await App.DataBase.DeleteObjectAsync(await App.DataBase.GetObjectAsync(int.Parse(Id)));
+                    try
+                    {
+                        Directory.Delete(Path.Combine(FileManager.DataPath(), Id), true);
+                    }
+                    catch
+                    {
+
+                    }
+                   
+                    await Shell.Current.GoToAsync("..");
+                }
+
+            }
+        }
+
     }
 }
