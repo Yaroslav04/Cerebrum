@@ -22,17 +22,15 @@ namespace Cerebrum.Core.ViewModel
             AddTypeCommand = new Command(AddType);
             AddAuthorityCommand = new Command(AddAuthority);
             AddFileCommand = new Command(async () => await AddFile());
-
+            TegTappedCommand = new Command<TegClass>(TegTapped);
+            FileTappedCommand = new Command<FileClass>(FileTapped);
             AuthorityItems = new ObservableCollection<string>();
             TypeItems = new ObservableCollection<string>();
             TegItems = new ObservableCollection<TegClass>();
             KeyTegItems = new ObservableCollection<string>(App.Tegs);
-            FileItems = new ObservableCollection<FileClass>();
-
-            Clear();
-
+            FileItems = new ObservableCollection<FileClass>();    
+            
             Debug.WriteLine(FileManager.AppPath());
-
         }
 
         #region Properties
@@ -44,7 +42,53 @@ namespace Cerebrum.Core.ViewModel
             set
             {
                 SetProperty(ref id, value);
-                //LoadCase(value);
+                Load(value);
+            }
+        }
+
+        private async void Load(string value)
+        {
+            await LoadAuthNType();
+
+            if (id == "-1")
+            {
+                Title = "Додати картку";
+                await Clear();
+            }
+            else
+            {
+                Title = "Редагувати картку";
+                await Clear();      
+                var item = await App.DataBase.GetObjectAsync(int.Parse(value));
+                DescriptionPanel = item.Description;
+                IdentificationPanel =item.Identification;
+                DocumentDatePanel = item.DocumentDate.ToShortDateString();
+                SelectedAuthority = item.Authority;
+                SelectedType = item.Type;
+                ContentPanel = item.Content;
+
+                var tegs = await App.DataBase.GetTegsByIdAsync(int.Parse(value));
+                if (tegs != null)
+                {
+                    foreach(var teg in tegs)
+                    {
+                        TegItems.Add(teg);
+                    }
+                }
+
+                var files = Directory.GetFiles(Path.Combine(FileManager.DataPath(), item.N.ToString()));
+                if (files.Length > 0)
+                {
+                    foreach (var file in files)
+                    {
+
+                        FileItems.Add(new FileClass
+                        {
+                            Name = Path.GetFileName(file),
+                            Path = file
+                        });
+                    }
+                }
             }
         }
 
@@ -87,6 +131,26 @@ namespace Cerebrum.Core.ViewModel
 
         #region Files
         public ObservableCollection<FileClass> FileItems { get; }
+
+        private bool isFileDelete;
+        public bool IsFileDelete
+        {
+            get => isFileDelete;
+            set
+            {
+                SetProperty(ref isFileDelete, value);
+            }
+        }
+
+        private bool isFileOpen;
+        public bool IsFileOpen
+        {
+            get => isFileOpen;
+            set
+            {
+                SetProperty(ref isFileOpen, value);
+            }
+        }
 
         #endregion
 
@@ -177,18 +241,14 @@ namespace Cerebrum.Core.ViewModel
         public Command AddTypeCommand { get; }
         public Command AddAuthorityCommand { get; }
         public Command AddFileCommand { get; }
+        public Command<TegClass> TegTappedCommand { get; }
+        public Command<FileClass> FileTappedCommand { get; }
 
         #endregion
 
-        private async Task Clear()
+        private async Task LoadAuthNType()
         {
-            var tegs = await App.DataBase.GetTegsAsync();
-            foreach (var teg in tegs)
-            {
-                Debug.WriteLine(teg.Id);
-            }
-
-
+            TypeItems.Clear();
             var types = await App.DataBase.GetTypes();
             if (types != null)
             {
@@ -199,8 +259,10 @@ namespace Cerebrum.Core.ViewModel
                         TypeItems.Add(item);
                     }
                 }
-               
+
             }
+
+            AuthorityItems.Clear();
             var auth = await App.DataBase.GetAuthorities();
             if (auth != null)
             {
@@ -213,10 +275,15 @@ namespace Cerebrum.Core.ViewModel
                 }
 
             }
+        }
+
+        private async Task Clear()
+        {
+            await LoadAuthNType();
             FileItems.Clear();
             DescriptionPanel = null;
             IdentificationPanel = null;
-            DocumentDatePanel = null;
+            DocumentDatePanel = DateTime.Now.ToShortDateString();
             SelectedAuthority = null;
             SelectedType = null;
             ContentPanel = null;
@@ -236,9 +303,9 @@ namespace Cerebrum.Core.ViewModel
             objectClass.Type = SelectedType;
             objectClass.Content = ContentPanel;
 
-            if (TegItems.Count < 2)
+            if (TegItems.Count == 0)
             {
-                await Shell.Current.DisplayAlert("Помилка", $"Додайте не менше 3х тегів", "ОК");
+                await Shell.Current.DisplayAlert("Помилка", $"Додайте тег", "ОК");
                 return;
             }
             else
@@ -275,29 +342,52 @@ namespace Cerebrum.Core.ViewModel
                             {
                                 File.Copy(file.Path, FileManager.DataPath(Path.Combine(index.ToString(), file.Name)));
                             }
-                            catch(Exception ex)
+                            catch (Exception ex)
                             {
                                 Debug.WriteLine(ex.Message);
                             }
+
+                            if (IsFileDelete)
+                            {
+                                File.Delete(file.Path);
+                            }
                         }
                     }
-                }        
+                }
             }
 
             await Clear();
             await Shell.Current.DisplayAlert("Збережено", $"Документ збережено", "ОК");
-
+            if (Id != "-1")
+            {
+                await Shell.Current.GoToAsync("..");
+            }
         }
 
         private void AddTeg()
         {
-            TegItems.Add(
+            if (SelectedKeyTeg == null)
+            {
+                return;
+            }
+            else
+            {
+                if (ValueTeg == null)
+                {
+                    return;
+                }
+                else
+                {
+                    TegItems.Add(
                 new TegClass
                 {
-                    Key = SelectedKeyTeg, 
+                    Key = SelectedKeyTeg,
                     Value = ValueTeg
                 }
                 );
+                    ValueTeg = null;
+                }
+            }
         }
 
         private async void AddAuthority()
@@ -338,7 +428,10 @@ namespace Cerebrum.Core.ViewModel
                     Name = file[1],
                     Path = file[0]
                 });
-                Process.Start("explorer.exe", file[0]);
+                if (IsFileOpen)
+                {
+                    Process.Start("explorer.exe", file[0]);
+                }
             }
         }
 
@@ -348,8 +441,8 @@ namespace Cerebrum.Core.ViewModel
             {
                 var result = await FilePicker.Default.PickAsync();
                 if (result != null)
-                {                  
-                    return new string[] {result.FullPath, result.FileName };
+                {
+                    return new string[] { result.FullPath, result.FileName };
                 }
 
                 return null;
@@ -357,6 +450,22 @@ namespace Cerebrum.Core.ViewModel
             catch
             {
                 return null;
+            }
+        }
+
+        private void TegTapped(TegClass item)
+        {
+            if (item != null)
+            {
+                TegItems.Remove(item);
+            }
+        }
+
+        private void FileTapped(FileClass item)
+        {
+            if (item != null)
+            {
+                FileItems.Remove(item);
             }
         }
     }

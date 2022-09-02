@@ -78,6 +78,11 @@ namespace Cerebrum.Core.Servises
             return await objectDataBase.Table<ObjectClass>().ToListAsync();
         }
 
+        public async Task<ObjectClass> GetObjectAsync(int _id)
+        {
+            return await objectDataBase.Table<ObjectClass>().Where(x => x.N == _id).FirstOrDefaultAsync();
+        }
+
         public async Task<List<string>> GetTypes()
         {
             List<string> result = new List<string>();

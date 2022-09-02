@@ -19,7 +19,7 @@ public partial class App : Application
 
     public static List<string> Tegs = new List<string>
     {
-        "КК", "КПК", "судова справа", "ключове слово"
+        "ККУ(Особлива частина)", "судова справа", "ключове слово"
     };
 
     public App()

@@ -9,6 +9,7 @@ namespace Cerebrum.Core.Model
     public class ObjectSoketClass : ObjectClass
     {
         public string Tegs { get; set; }
+        public List<TegClass> TegsList { get; set; }
         public ObjectSoketClass( ObjectClass objectClass)
         {
             this.N = objectClass.N;
@@ -19,6 +20,7 @@ namespace Cerebrum.Core.Model
             this.Type = objectClass.Type;   
             this.Content = objectClass.Content;
             this.SaveDate = objectClass.SaveDate;
+            TegsList = new List<TegClass>();
         }
     }
 }

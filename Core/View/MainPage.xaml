@@ -5,7 +5,7 @@
              xmlns:viewmodel="clr-namespace:Cerebrum.Core.ViewModel"
              x:DataType="viewmodel:MainPageViewModel"
              x:Class="Cerebrum.Core.View.MainPage"
-             Title="MainPage"  
+             Title="🏛Правові позиції"  
              BackgroundColor="{StaticResource Light}">
 
     <ContentPage.Resources>
@@ -20,9 +20,9 @@
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Редагувати" Command="{Binding EditItemCommand}" />
         <ToolbarItem Text="Додати" Command="{Binding AddItemCommand}" />
     </ContentPage.ToolbarItems>
-
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -34,35 +34,24 @@
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-
         <Frame Grid.Column="0" Grid.Row="0" 
             CornerRadius="10" 
                  Margin="2,2,2,2"
                Padding="5,5,5,5"
                  BackgroundColor="{StaticResource Light}"
                BorderColor="{StaticResource Primary}">
-
             <ScrollView VerticalScrollBarVisibility="Never">
                 <StackLayout Spacing="5"
                              Padding="2,2,2,2">
 
-                    <Entry Placeholder="Пошук за текстом"
-                          ></Entry>
-
-                    <Picker Title="Розділ"></Picker>
-
-                    <Picker Title="Тег (стаття)"></Picker>
-
-                    <Picker Title="Тип рішення"></Picker>
-
-                    <Picker Title="Видавник"></Picker>
-
+                    <Entry Text="{Binding SearchTextSearchPanel}" PlaceholderColor="{StaticResource Primary}" Placeholder="Пошук за текстом"></Entry>
+                    <Picker ItemsSource="{Binding SearchTypeItems}" SelectedItem="{Binding SearchTypeSearchPanel}" BackgroundColor="White" Grid.Column="1"></Picker>
+                    <Picker ItemsSource="{Binding AuthorityItems}" SelectedItem="{Binding AuthoritySearchPanel}" BackgroundColor="White" Title="Видавник"></Picker>
+                    <Picker ItemsSource="{Binding TypeItems}" SelectedItem="{Binding TypeSearchPanel}" BackgroundColor="White"  Title="Тип рішення"></Picker>
+                    <Picker ItemsSource="{Binding SortItems}" SelectedItem="{Binding SortSearchPanel}" BackgroundColor="White"  Title="Сортування"></Picker>
                 </StackLayout>
-
             </ScrollView>
-
         </Frame>
-
         <Frame Grid.Column="0" Grid.Row="1" 
             CornerRadius="10" 
                  Margin="2,2,2,2"
@@ -73,32 +62,28 @@
                 Orientation="Vertical" 
                 Spacing="5"
                 Padding="2,2,2,2">
-                <Button Text="Пошук"></Button>
-                <Button Text="Очистити"></Button>
+                <Button Command="{Binding SearchCommand}" Text="Пошук"></Button>
+                <Button Command="{Binding ClearCommand}" Text="Очистити"></Button>
             </StackLayout>
-
-
         </Frame>
-
         <Frame Grid.Column="1" Grid.RowSpan="2" 
             CornerRadius="10" 
                  Margin="2,2,2,2"
                  BackgroundColor="{StaticResource Light}"
                BorderColor="{StaticResource Primary}">
-
             <CollectionView x:Name="ItemsListView"
                 ItemsSource="{Binding Items}"
-                SelectionMode="None"
+                SelectionMode="Single"
+                SelectedItem="{Binding SelectedItem}"
                 HorizontalOptions="FillAndExpand">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <ContentView>
-
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"></RowDefinition>
-                                </Grid.RowDefinitions>
-                                <Frame x:DataType="model:ObjectSoketClass" HasShadow="True" CornerRadius="15" Margin="2">
+                            <Frame x:DataType="model:ObjectSoketClass" HasShadow="True" CornerRadius="15" Margin="2">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                    </Grid.RowDefinitions>
                                     <Grid RowSpacing="5">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"></RowDefinition>
@@ -109,42 +94,50 @@
                                             <StackLayout  Orientation="Horizontal" Spacing="10">
                                                 <Label Text="{Binding Authority}" 
                                         LineBreakMode="NoWrap" 
-                                        Style="{DynamicResource ListItemTextStyle}" 
+                                        Style="{DynamicResource ListItemTextStyle}"
+                                                       TextColor="{StaticResource Primary}"
                                         FontSize="16" />
                                                 <Label Text="{Binding Type}" 
                                             LineBreakMode="NoWrap" 
-                                            TextColor = "{StaticResource Gray600}" 
+                                            TextColor = "{StaticResource Gray400}" 
                                             FontSize="14" />
                                             </StackLayout>
                                             <Label Text="{Binding Description}"                                         
                                         TextColor="{StaticResource Gray600}" 
                                         FontSize="14" />
                                         </StackLayout>
-                                        
-                                        <Label TextColor="{StaticResource Gray400}" LineBreakMode="WordWrap"  FontSize="12" Grid.Row="1" Text="{Binding Tegs}"></Label>
-                                        
+                                        <StackLayout Grid.Row="1">
+                                            <Label TextColor="{StaticResource Gray400}" LineBreakMode="WordWrap"  FontSize="12"  Text="{Binding Tegs}"></Label>
+                                        </StackLayout >
                                     </Grid>
-                                    <Frame.GestureRecognizers>
-                                        <TapGestureRecognizer 
+                                </Grid>
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer 
                                         NumberOfTapsRequired="1"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:MainPageViewModel}}, Path=SingleItemTapped}"		
                                         CommandParameter="{Binding .}">
-                                        </TapGestureRecognizer>
-                                        <TapGestureRecognizer
+                                    </TapGestureRecognizer>
+                                    <TapGestureRecognizer
                                         NumberOfTapsRequired="2"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:MainPageViewModel}}, Path=DoubleItemTapped}"		
                                         CommandParameter="{Binding .}">
-                                        </TapGestureRecognizer>
-                                    </Frame.GestureRecognizers>
-                                </Frame>
-                            </Grid>
-
+                                    </TapGestureRecognizer>
+                                </Frame.GestureRecognizers>
+                            </Frame>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup Name="CommonStates">
+                                    <VisualState Name="Normal" />
+                                    <VisualState Name="Selected">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
                         </ContentView>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </Frame>
-
     </Grid>
-
 </ContentPage>
