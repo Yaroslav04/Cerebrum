@@ -27,8 +27,8 @@
                         <ColumnDefinition Width="1*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
 
-                    <StackLayout Grid.Column="0" Spacing="5">
-                        <Editor BackgroundColor="White" PlaceholderColor="{StaticResource Primary}" Placeholder="Опис" MinimumHeightRequest="100" Text="{Binding DescriptionPanel}"></Editor>
+                    <StackLayout Grid.Column="1" Spacing="5">
+                        
 
                         <StackLayout>
                             <StackLayout Spacing="5" Grid.Column="0" Orientation="Horizontal">
@@ -52,8 +52,8 @@
                         </Grid>
                     </StackLayout>
 
-                    <StackLayout Grid.Column="1">
-                        <Editor VerticalOptions="Start" PlaceholderColor="{StaticResource Primary}" BackgroundColor="White"  Text="{Binding ContentPanel}" HeightRequest="200" Placeholder="Нотатки"></Editor>
+                    <StackLayout Grid.Column="0">
+                        <Editor BackgroundColor="White" PlaceholderColor="{StaticResource Primary}" Placeholder="Опис" MinimumHeightRequest="100" Text="{Binding DescriptionPanel}"></Editor>
                     </StackLayout>
                 </Grid>
 

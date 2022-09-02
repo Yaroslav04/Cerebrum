@@ -80,7 +80,6 @@ namespace Cerebrum.Core.ViewModel
                 DocumentDatePanel = item.DocumentDate.ToShortDateString();
                 SelectedAuthority = item.Authority;
                 SelectedType = item.Type;
-                ContentPanel = item.Content;
 
                 var tegs = await App.DataBase.GetTegsByIdAsync(int.Parse(value));
                 if (tegs != null)
@@ -326,7 +325,6 @@ namespace Cerebrum.Core.ViewModel
             objectClass.DocumentDate = Convert.ToDateTime(DocumentDatePanel);
             objectClass.Authority = SelectedAuthority;
             objectClass.Type = SelectedType;
-            objectClass.Content = ContentPanel;
 
             if (TegItems.Count == 0)
             {

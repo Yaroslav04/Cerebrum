@@ -18,7 +18,6 @@ namespace Cerebrum.Core.Model
             this.DocumentDate = objectClass.DocumentDate;
             this.Authority = objectClass.Authority;
             this.Type = objectClass.Type;   
-            this.Content = objectClass.Content;
             this.SaveDate = objectClass.SaveDate;
             TegsList = new List<TegClass>();
         }
