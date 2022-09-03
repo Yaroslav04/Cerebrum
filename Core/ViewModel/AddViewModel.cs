@@ -19,21 +19,21 @@ namespace Cerebrum.Core.ViewModel
         {
             SaveCommand = new Command(Save);
             DeleteCommand = new Command(Delete);
-
             ClearCommand = new Command(async () => await Clear());
             AddTegCommand = new Command(AddTeg);
             AddTypeCommand = new Command(AddType);
             AddAuthorityCommand = new Command(AddAuthority);
             AddFileCommand = new Command(async () => await AddFile());
+            CreateFileCommand = new Command(CreateFile);
             TegTappedCommand = new Command<TegClass>(TegTapped);
             FileTappedCommand = new Command<FileClass>(FileTapped);
+
             AuthorityItems = new ObservableCollection<string>();
             TypeItems = new ObservableCollection<string>();
             TegItems = new ObservableCollection<TegClass>();
             KeyTegItems = new ObservableCollection<string>(App.Tegs);
             FileItems = new ObservableCollection<FileClass>();
 
-            Debug.WriteLine(FileManager.AppPath());
         }
 
         #region Properties
@@ -49,6 +49,8 @@ namespace Cerebrum.Core.ViewModel
             }
         }
 
+        #region ElementName
+
         private string saveButtonName;
         public string SaveButtonName
         {
@@ -59,60 +61,8 @@ namespace Cerebrum.Core.ViewModel
             }
         }
 
-        private async void Load(string value)
-        {
-            await LoadAuthNType();
 
-            if (value == "-1")
-            {
-                Title = "Додати картку";
-                SaveButtonName = "Зберегти";
-                await Clear();
-            }
-            else
-            {
-                Title = "Редагувати картку";
-                SaveButtonName = "Оновити";
-                await Clear();
-                var item = await App.DataBase.GetObjectAsync(int.Parse(value));
-                DescriptionPanel = item.Description;
-                IdentificationPanel = item.Identification;
-                DocumentDatePanel = item.DocumentDate.ToShortDateString();
-                SelectedAuthority = item.Authority;
-                SelectedType = item.Type;
-
-                var tegs = await App.DataBase.GetTegsByIdAsync(int.Parse(value));
-                if (tegs != null)
-                {
-                    foreach (var teg in tegs)
-                    {
-                        TegItems.Add(teg);
-                    }
-                }
-
-                try
-                {
-                    var files = Directory.GetFiles(Path.Combine(FileManager.DataPath(), item.N.ToString()));
-                    if (files.Length > 0)
-                    {
-                        foreach (var file in files)
-                        {
-
-                            FileItems.Add(new FileClass
-                            {
-                                Name = Path.GetFileName(file),
-                                Path = file
-                            });
-                        }
-                    }
-                }
-                catch
-                {
-
-                }
-                
-            }
-        }
+        #endregion
 
         #region Teg
         public ObservableCollection<TegClass> TegItems { get; }
@@ -252,24 +202,85 @@ namespace Cerebrum.Core.ViewModel
 
         #endregion
 
-
         #endregion
 
         #region Command
 
         public Command SaveCommand { get; }
         public Command DeleteCommand { get; }
-
         public Command ClearCommand { get; }
         public Command AddTegCommand { get; }
         public Command AddTypeCommand { get; }
         public Command AddAuthorityCommand { get; }
         public Command AddFileCommand { get; }
+        public Command CreateFileCommand { get; }
         public Command<TegClass> TegTappedCommand { get; }
         public Command<FileClass> FileTappedCommand { get; }
 
         #endregion
 
+        private async void Load(string _value)
+        {
+            await LoadAuthNType();
+
+            if (_value == "-1")
+            {
+                Title = "Додати картку";
+                SaveButtonName = "Зберегти";
+                await Clear();
+            }
+            else
+            {
+                Title = "Редагувати картку";
+                SaveButtonName = "Оновити";
+                await Clear();
+                var item = await App.DataBase.GetObjectAsync(int.Parse(_value));
+                DescriptionPanel = item.Description;
+                IdentificationPanel = item.Identification;
+                DocumentDatePanel = item.DocumentDate.ToShortDateString();
+                SelectedAuthority = item.Authority;
+                SelectedType = item.Type;
+
+                await LoadFiles(_value);
+                await LoadTegs(_value);
+
+            }
+        }
+        private Task LoadFiles(string _value)
+        {
+            try
+            {
+                var files = Directory.GetFiles(Path.Combine(FileManager.DataPath(), _value));
+                if (files.Length > 0)
+                {
+                    foreach (var file in files)
+                    {
+
+                        FileItems.Add(new FileClass
+                        {
+                            Name = Path.GetFileName(file),
+                            Path = file
+                        });
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return Task.CompletedTask;
+        }
+        private async Task LoadTegs(string _value)
+        {
+            var tegs = await App.DataBase.GetTegsByIdAsync(int.Parse(_value));
+            if (tegs != null)
+            {
+                foreach (var teg in tegs)
+                {
+                    TegItems.Add(teg);
+                }
+            }
+        }
         private async Task LoadAuthNType()
         {
             TypeItems.Clear();
@@ -300,7 +311,6 @@ namespace Cerebrum.Core.ViewModel
 
             }
         }
-
         private async Task Clear()
         {
             await LoadAuthNType();
@@ -316,23 +326,28 @@ namespace Cerebrum.Core.ViewModel
             TegItems.Clear();
             SelectedKeyTeg = null;
         }
-
         private async void Save()
         {
-            ObjectClass objectClass = new ObjectClass();
-            objectClass.Description = DescriptionPanel;
-            objectClass.Identification = IdentificationPanel;
-            objectClass.DocumentDate = Convert.ToDateTime(DocumentDatePanel);
-            objectClass.Authority = SelectedAuthority;
-            objectClass.Type = SelectedType;
-
-            if (TegItems.Count == 0)
+            if (SelectedAuthority == null | SelectedType == null | DescriptionPanel == null)
+            {
+                await Shell.Current.DisplayAlert("Помилка", $"Введіть видавника, тип документу або опис", "ОК");
+                return;
+            }
+            else if (TegItems.Count == 0)
             {
                 await Shell.Current.DisplayAlert("Помилка", $"Додайте тег", "ОК");
                 return;
             }
             else
             {
+                ObjectClass objectClass = new ObjectClass();
+                objectClass.Description = DescriptionPanel;
+                objectClass.Identification = IdentificationPanel;
+                objectClass.DocumentDate = Convert.ToDateTime(DocumentDatePanel);
+                objectClass.Authority = SelectedAuthority;
+                objectClass.Type = SelectedType;
+
+
                 if (Id == "-1")
                 {
                     await App.DataBase.SaveObjectAsync(objectClass);
@@ -349,6 +364,37 @@ namespace Cerebrum.Core.ViewModel
                             await App.DataBase.SaveTegAsync(tegClass);
                         }
 
+                        foreach (var teg in TegItems)
+                        {
+                            if (teg.Key == "судова справа")
+                            {
+                                if (await App.DataBase.IsCaseNotExist(teg.Value))
+                                {
+                                    ObjectClass subObject = new ObjectClass();
+                                    subObject.Description = DescriptionPanel;
+                                    subObject.Identification = teg.Value;
+                                    await App.DataBase.SaveObjectAsync(subObject);
+                                    var subindex = await App.DataBase.GetLastOblectIndex();
+                                    TegClass subTeg = new TegClass();
+                                    subTeg.Id = subindex;
+                                    subTeg.Key = teg.Key;
+                                    subTeg.Value = teg.Value;
+                                    await App.DataBase.SaveTegAsync(subTeg);
+                                    foreach (var t in TegItems)
+                                    {
+                                        
+                                        if (t.Key != "судова справа")
+                                        {
+                                            subTeg.Id = subindex;
+                                            subTeg.Key = t.Key;
+                                            subTeg.Value = t.Value;
+                                            await App.DataBase.SaveTegAsync(subTeg);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         if (FileItems.Count > 0)
                         {
                             try
@@ -363,19 +409,33 @@ namespace Cerebrum.Core.ViewModel
 
                             foreach (var file in FileItems)
                             {
-                                try
+                                if (file.Path != "new")
                                 {
-                                    File.Copy(file.Path, FileManager.DataPath(Path.Combine(index.ToString(), file.Name)));
+                                    try
+                                    {
+                                        File.Copy(file.Path, FileManager.DataPath(Path.Combine(index.ToString(), file.Name)));
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Debug.WriteLine(ex.Message);
+                                    }
                                 }
-                                catch (Exception ex)
+                                else
                                 {
-                                    Debug.WriteLine(ex.Message);
+                                    try
+                                    {
+                                        Random r = new Random();
+                                        using (StreamWriter sw = new StreamWriter(FileManager.DataPath(Path.Combine(index.ToString(), $"{r.Next(1000000).ToString()}.txt"))))
+                                        {
+                                            sw.Write(file.Content);
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Debug.WriteLine(ex.Message);
+                                    }
                                 }
 
-                                if (IsFileDelete)
-                                {
-                                    File.Delete(file.Path);
-                                }
                             }
                         }
                     }
@@ -420,17 +480,17 @@ namespace Cerebrum.Core.ViewModel
                             await App.DataBase.SaveTegAsync(teg);
                         }
                     }
-                }            
-            }
+                }
 
-            await Clear();
-            await Shell.Current.DisplayAlert("Збережено", $"Документ збережено", "ОК");
-            if (Id != "-1")
-            {
-                await Shell.Current.GoToAsync("..");
+
+                await Clear();
+                await Shell.Current.DisplayAlert("Збережено", $"Документ збережено", "ОК");
+                if (Id != "-1")
+                {
+                    await Shell.Current.GoToAsync("..");
+                }
             }
         }
-
         private void AddTeg()
         {
             if (SelectedKeyTeg == null)
@@ -446,18 +506,17 @@ namespace Cerebrum.Core.ViewModel
                 else
                 {
                     TegItems.Add(
-                new TegClass
-                {
-                    Id = -1,
-                    Key = SelectedKeyTeg,
-                    Value = ValueTeg
-                }
-                );
+                                new TegClass
+                                {
+                                Id = -1,
+                                Key = SelectedKeyTeg,
+                                Value = ValueTeg
+                                }
+                                );
                     ValueTeg = null;
                 }
             }
         }
-
         private async void AddAuthority()
         {
             string result = await Shell.Current.DisplayPromptAsync("Додати видавника документу", $"Введіть орган який видав документ");
@@ -471,7 +530,6 @@ namespace Cerebrum.Core.ViewModel
                 SelectedAuthority = result.Trim();
             }
         }
-
         private async void AddType()
         {
             string result = await Shell.Current.DisplayPromptAsync("Додати тип документу", $"Введіть тип документу");
@@ -485,7 +543,6 @@ namespace Cerebrum.Core.ViewModel
                 SelectedType = result.Trim();
             }
         }
-
         private async Task AddFile()
         {
             var file = await PickAndShow();
@@ -502,7 +559,6 @@ namespace Cerebrum.Core.ViewModel
                 }
             }
         }
-
         public async Task<string[]> PickAndShow()
         {
             try
@@ -520,7 +576,6 @@ namespace Cerebrum.Core.ViewModel
                 return null;
             }
         }
-
         private void TegTapped(TegClass item)
         {
             if (item != null)
@@ -528,7 +583,6 @@ namespace Cerebrum.Core.ViewModel
                 DeleteTeg(item);
             }
         }
-
         private async void DeleteTeg(TegClass item)
         {
             bool answer = await Shell.Current.DisplayAlert("Видалення", $"Видалити тег {item.Key} {item.Value}?", "Так", "Ні");
@@ -537,7 +591,6 @@ namespace Cerebrum.Core.ViewModel
                 TegItems.Remove(item);
             }
         }
-
         private void FileTapped(FileClass item)
         {
             if (item != null)
@@ -545,7 +598,6 @@ namespace Cerebrum.Core.ViewModel
                 DeleteFile(item);
             }
         }
-
         private async void DeleteFile(FileClass item)
         {
             bool answer = await Shell.Current.DisplayAlert("Видалення", $"Видалити файл {item.Name}?", "Так", "Ні");
@@ -554,7 +606,6 @@ namespace Cerebrum.Core.ViewModel
                 FileItems.Remove(item);
             }
         }
-
         private async void Delete()
         {
             if (Id != "-1")
@@ -571,12 +622,37 @@ namespace Cerebrum.Core.ViewModel
                     {
 
                     }
-                   
+
                     await Shell.Current.GoToAsync("..");
                 }
 
             }
         }
-
+        private async void CreateFile()
+        {
+            string text = "";
+            if (Clipboard.HasText)
+            {
+                text = await Clipboard.GetTextAsync();
+            }
+            if (text != "")
+            {
+                var lenght = text.Length;
+                if (lenght > 30)
+                {
+                    lenght = 30;
+                }
+                else
+                {
+                    lenght = text.Length;
+                }
+                FileItems.Add(new FileClass
+                {
+                    Path = "new",
+                    Name = text.Replace("\n", "").Substring(0, lenght - 1),
+                    Content = text
+                });
+            }
+        }
     }
 }

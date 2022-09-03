@@ -97,14 +97,14 @@
                                                 </Grid.RowDefinitions>
 
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="100"></ColumnDefinition>
+                                                    <ColumnDefinition Width="*"></ColumnDefinition>
                                                 </Grid.ColumnDefinitions>
-
-                                                <StackLayout Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Spacing="5" x:DataType="model:TegClass">
+                                                <Frame Grid.Column="0">
+                                                <StackLayout Orientation="Horizontal" Spacing="5" x:DataType="model:TegClass">
                                                     <Label TextColor="{StaticResource Gray400}" LineBreakMode="WordWrap"  Text="{Binding Key}"></Label>
                                                     <Label LineBreakMode="WordWrap"  Text="{Binding Value}"></Label>
                                                 </StackLayout>
-
+                                                </Frame>
                                             </Grid>
                                             <ContentView.GestureRecognizers>
                                                 <TapGestureRecognizer 
@@ -143,6 +143,7 @@
                                     <CheckBox IsChecked="{Binding IsFileDelete, Mode=TwoWay}"></CheckBox>
                                 </StackLayout>-->
                                 <StackLayout HorizontalOptions="End" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                    <Button Command="{Binding CreateFileCommand}" Text="✒" ></Button>
                                     <Button Command="{Binding AddFileCommand}" Text="📂" ></Button>
                                     <Button Command="{Binding AddFileCommand}" Text="+" ></Button>
                                 </StackLayout>
@@ -157,7 +158,14 @@
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>
                                         <ContentView x:DataType="model:FileClass">
-                                            <Label Text="{Binding Name}"></Label>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                                </Grid.ColumnDefinitions>
+                                                <Frame Grid.Column="0">
+                                                    <Label Text="{Binding Name}"></Label>
+                                                </Frame>
+                                            </Grid>
                                             <ContentView.GestureRecognizers>
                                                 <TapGestureRecognizer 
                                                 NumberOfTapsRequired="2"

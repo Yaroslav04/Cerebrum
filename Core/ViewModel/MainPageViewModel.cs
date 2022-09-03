@@ -22,6 +22,7 @@ namespace Cerebrum.Core.ViewModel
             AddItemCommand = new Command(Add);
             EditItemCommand = new Command(Edit);
             OpenAppFolderCommand = new Command(OpenAppFolder);
+
             Items = new ObservableCollection<ObjectSoketClass>();
             SearchTypeItems = new ObservableCollection<string>
             {
@@ -38,12 +39,10 @@ namespace Cerebrum.Core.ViewModel
             };
 
             RunAsync();
-
         }
 
         private async void RunAsync()
         {
-
             await LoadAuthNType();
             await LoadItems();
         }
@@ -141,7 +140,6 @@ namespace Cerebrum.Core.ViewModel
         public Command<ObjectSoketClass> DoubleItemTapped { get; }
         public Command SearchCommand { get; }
         public Command ClearCommand { get; }
-
         public Command OpenAppFolderCommand { get; }
 
         #endregion
@@ -158,20 +156,26 @@ namespace Cerebrum.Core.ViewModel
 
             if (item == null)
                 return;
+            try
+            {
+                var files = Directory.GetFiles(Path.Combine(FileManager.DataPath(), item.N.ToString()));
+                if (files.Length == 0)
+                {
+                    return;
+                }
+                else if (files.Length == 1)
+                {
+                    Process.Start("explorer.exe", files[0]);
+                }
+                else
+                {
+                    Process.Start("explorer.exe", Path.Combine(FileManager.DataPath(), item.N.ToString()));
+                }
+            }
+            catch
+            {
 
-            var files = Directory.GetFiles(Path.Combine(FileManager.DataPath(), item.N.ToString()));
-            if (files.Length == 0)
-            {
-                return;
-            }
-            else if (files.Length == 1)
-            {
-                Process.Start("explorer.exe", files[0]);
-            }
-            else
-            {
-                Process.Start("explorer.exe", Path.Combine(FileManager.DataPath(), item.N.ToString()));
-            }
+            }      
         }
 
         private async void Add()

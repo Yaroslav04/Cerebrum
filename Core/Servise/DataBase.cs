@@ -138,6 +138,19 @@ namespace Cerebrum.Core.Servises
             return result;
         }
 
+        public async Task<bool> IsCaseNotExist(string _case)
+        {
+            var result = await objectDataBase.Table<ObjectClass>().Where(x => x.Identification == _case).ToListAsync();
+            if (result != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         #endregion
 
         #region Teg

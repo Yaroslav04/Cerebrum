@@ -103,6 +103,9 @@
                                             TextColor = "{StaticResource Gray400}" 
                                             FontSize="14" />
                                             </StackLayout>
+                                            <Label Text="{Binding Identification}"                                         
+                                        TextColor="{StaticResource Gray600}" 
+                                        FontSize="12" />
                                             <Label Text="{Binding Description}"                                         
                                         TextColor="{StaticResource Gray600}" 
                                         FontSize="14" />
