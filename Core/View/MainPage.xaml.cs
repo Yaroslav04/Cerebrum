@@ -4,9 +4,17 @@ namespace Cerebrum.Core.View;
 
 public partial class MainPage : ContentPage
 {
-	public MainPage()
+    MainPageViewModel mainPageViewModel;
+    public MainPage()
 	{
 		InitializeComponent();
-		BindingContext = new MainPageViewModel();
+		mainPageViewModel = new MainPageViewModel();
+		BindingContext = mainPageViewModel;
 	}
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        mainPageViewModel.OnAppearing();
+    }
 }

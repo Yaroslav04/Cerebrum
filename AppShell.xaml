@@ -11,8 +11,8 @@
         <ShellContent Route="MainPage" ContentTemplate="{DataTemplate view:MainPage}" />
     </FlyoutItem>
     
-    <FlyoutItem Title="Тест">
+    <!--<FlyoutItem Title="Тест">
         <ShellContent Route="MainPage" ContentTemplate="{DataTemplate view:MainPage}" />
-    </FlyoutItem>
+    </FlyoutItem>-->
 
 </Shell>

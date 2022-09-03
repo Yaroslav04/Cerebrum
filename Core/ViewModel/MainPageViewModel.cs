@@ -38,13 +38,20 @@ namespace Cerebrum.Core.ViewModel
                 "Внесено за спаданням"
             };
 
-            RunAsync();
+            SortSearchPanel = "Внесено за спаданням";
+        }
+
+        public void OnAppearing()
+        {
+            if (IsRefresh)
+            {
+                RunAsync();
+            }
         }
 
         private async void RunAsync()
         {
             await LoadAuthNType();
-            SortSearchPanel = "Внесено за спаданням";
             await LoadItems();
         }
 
@@ -59,6 +66,17 @@ namespace Cerebrum.Core.ViewModel
             set
             {
                 SetProperty(ref selectedItem, value);
+
+            }
+        }
+
+        private bool isRefresh = true;
+        public bool IsRefresh
+        {
+            get => isRefresh;
+            set
+            {
+                SetProperty(ref isRefresh, value);
 
             }
         }
@@ -127,6 +145,17 @@ namespace Cerebrum.Core.ViewModel
         }
 
         public ObservableCollection<string> SortItems { get; }
+
+        private string identificationSearchPanel;
+        public string IdentificationSearchPanel
+        {
+            get => identificationSearchPanel;
+            set
+            {
+                SetProperty(ref identificationSearchPanel, value);
+
+            }
+        }
 
         #endregion
 
@@ -200,6 +229,7 @@ namespace Cerebrum.Core.ViewModel
             SearchTypeSearchPanel = null;
             AuthoritySearchPanel = null;
             TypeSearchPanel = null;  
+            IdentificationSearchPanel = null;
         }
 
         private async void Search()
@@ -282,6 +312,15 @@ namespace Cerebrum.Core.ViewModel
                 {
                     items = items.Where(x => x.Type == TypeSearchPanel).ToList();
                     if (items.Count == 0)
+                    {
+                        return;
+                    }
+                }
+
+                if (IdentificationSearchPanel != null)
+                {
+                    items = items.Where(x => x.Identification == IdentificationSearchPanel).ToList();
+                    if (items.Count == 0) 
                     {
                         return;
                     }
@@ -492,7 +531,6 @@ namespace Cerebrum.Core.ViewModel
 
                 if (tegs.Count > 0)
                 {
-
                     foreach (var teg in tegs)
                     {
                         if (teg.Key == "ККУ(Особлива частина)")
@@ -505,13 +543,11 @@ namespace Cerebrum.Core.ViewModel
                         }
                     }
                 }
-
                 if (sw == true)
                 {
                     list.Add(item);
                 }
             }
-
             return list;
         }
 
@@ -519,6 +555,5 @@ namespace Cerebrum.Core.ViewModel
         {
             Process.Start("explorer.exe", FileManager.AppPath());
         }
-
     }
 }

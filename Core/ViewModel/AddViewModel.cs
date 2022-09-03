@@ -340,6 +340,15 @@ namespace Cerebrum.Core.ViewModel
             }
             else
             {
+                if (IdentificationPanel != null)
+                {
+                    if (await App.DataBase.IsObjectExistByIdentification(SelectedAuthority, IdentificationPanel))
+                    {
+                        await Shell.Current.DisplayAlert("Увага", $"Документ {SelectedType} {SelectedAuthority} - {IdentificationPanel} вже зареєстровано", "ОК");
+                        return;
+                    }
+                }
+
                 ObjectClass objectClass = new ObjectClass();
                 objectClass.Description = DescriptionPanel;
                 objectClass.Identification = IdentificationPanel;
@@ -368,7 +377,7 @@ namespace Cerebrum.Core.ViewModel
                         {
                             if (teg.Key == "судова справа")
                             {
-                                if (!await App.DataBase.IsCaseExist(teg.Value))
+                                if (await App.DataBase.IsCaseNotExist(teg.Value))
                                 {
                                     ObjectClass subObject = new ObjectClass();
                                     subObject.Description = DescriptionPanel;
@@ -381,8 +390,7 @@ namespace Cerebrum.Core.ViewModel
                                     subTeg.Value = teg.Value;
                                     await App.DataBase.SaveTegAsync(subTeg);
                                     foreach (var t in TegItems)
-                                    {
-                                        
+                                    {                                   
                                         if (t.Key != "судова справа")
                                         {
                                             subTeg.Id = subindex;
@@ -417,7 +425,6 @@ namespace Cerebrum.Core.ViewModel
                                     }
                                     catch (Exception ex)
                                     {
-                                        Debug.WriteLine(ex.Message);
                                     }
                                 }
                                 else
@@ -432,7 +439,6 @@ namespace Cerebrum.Core.ViewModel
                                     }
                                     catch (Exception ex)
                                     {
-                                        Debug.WriteLine(ex.Message);
                                     }
                                 }
 
@@ -491,7 +497,7 @@ namespace Cerebrum.Core.ViewModel
                 }
             }
         }
-        private void AddTeg()
+        private async void AddTeg()
         {
             if (SelectedKeyTeg == null)
             {
@@ -505,6 +511,18 @@ namespace Cerebrum.Core.ViewModel
                 }
                 else
                 {
+                    foreach(var item in TegItems)
+                    {
+                        if (item.Key == SelectedKeyTeg)
+                        {
+                            if(item.Value == ValueTeg)
+                            {
+                                await Shell.Current.DisplayAlert("Увага", $"Дублікат тега", "ОК");
+                                return;
+                            }
+                        }
+                    }
+
                     TegItems.Add(
                                 new TegClass
                                 {

@@ -138,16 +138,29 @@ namespace Cerebrum.Core.Servises
             return result;
         }
 
-        public async Task<bool> IsCaseExist(string _case)
+        public async Task<bool> IsCaseNotExist(string _case)
         {
             var result = await objectDataBase.Table<ObjectClass>().Where(x => x.Identification == _case).ToListAsync();
-            if (result != null)
+            if (result.Count == 0)
             {
                 return true;
             }
             else
             {
                 return false;
+            }
+        }
+
+        public async Task<bool> IsObjectExistByIdentification(string _auth, string _ident)
+        {
+            var result = await objectDataBase.Table<ObjectClass>().Where(x => x.Authority == _auth & x.Identification == _ident).ToListAsync();
+            if (result.Count == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
             }
         }
 
