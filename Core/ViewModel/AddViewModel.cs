@@ -368,7 +368,7 @@ namespace Cerebrum.Core.ViewModel
                         {
                             if (teg.Key == "судова справа")
                             {
-                                if (await App.DataBase.IsCaseNotExist(teg.Value))
+                                if (!await App.DataBase.IsCaseExist(teg.Value))
                                 {
                                     ObjectClass subObject = new ObjectClass();
                                     subObject.Description = DescriptionPanel;

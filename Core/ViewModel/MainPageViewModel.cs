@@ -44,6 +44,7 @@ namespace Cerebrum.Core.ViewModel
         private async void RunAsync()
         {
             await LoadAuthNType();
+            SortSearchPanel = "Внесено за спаданням";
             await LoadItems();
         }
 
@@ -198,8 +199,7 @@ namespace Cerebrum.Core.ViewModel
             SearchTextSearchPanel = null;
             SearchTypeSearchPanel = null;
             AuthoritySearchPanel = null;
-            TypeSearchPanel = null;
-            SortSearchPanel = null;   
+            TypeSearchPanel = null;  
         }
 
         private async void Search()

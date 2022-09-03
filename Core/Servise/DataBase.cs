@@ -138,7 +138,7 @@ namespace Cerebrum.Core.Servises
             return result;
         }
 
-        public async Task<bool> IsCaseNotExist(string _case)
+        public async Task<bool> IsCaseExist(string _case)
         {
             var result = await objectDataBase.Table<ObjectClass>().Where(x => x.Identification == _case).ToListAsync();
             if (result != null)
