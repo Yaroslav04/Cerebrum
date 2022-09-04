@@ -26,7 +26,7 @@ namespace Cerebrum.Core.ViewModel
             Items = new ObservableCollection<ObjectSoketClass>();
             SearchTypeItems = new ObservableCollection<string>
             {
-                "Всюди", "Заголовок", "Ключове слово", "КК України", "Файли", 
+                "Всюди", "Заголовок", "Ключове слово", "КК України", "Файли",
             };
             AuthorityItems = new ObservableCollection<string>();
             TypeItems = new ObservableCollection<string>();
@@ -34,7 +34,7 @@ namespace Cerebrum.Core.ViewModel
             {
                 "Від нових до старих",
                 "Від старих до нових",
-                "Внесено за зростанням", 
+                "Внесено за зростанням",
                 "Внесено за спаданням"
             };
 
@@ -90,7 +90,7 @@ namespace Cerebrum.Core.ViewModel
             set
             {
                 SetProperty(ref searchTextSearchPanel, value);
-              
+
             }
         }
 
@@ -178,7 +178,7 @@ namespace Cerebrum.Core.ViewModel
         {
 
             if (item == null)
-                return;          
+                return;
         }
 
         void DoubleTapped(ObjectSoketClass item)
@@ -205,7 +205,7 @@ namespace Cerebrum.Core.ViewModel
             catch
             {
 
-            }      
+            }
         }
 
         private async void Add()
@@ -221,6 +221,11 @@ namespace Cerebrum.Core.ViewModel
             }
         }
 
+        private void OpenAppFolder()
+        {
+            Process.Start("explorer.exe", FileManager.AppPath());
+        }
+
         private void Clear()
         {
             Items.Clear();
@@ -228,7 +233,7 @@ namespace Cerebrum.Core.ViewModel
             SearchTextSearchPanel = null;
             SearchTypeSearchPanel = null;
             AuthoritySearchPanel = null;
-            TypeSearchPanel = null;  
+            TypeSearchPanel = null;
             IdentificationSearchPanel = null;
         }
 
@@ -277,7 +282,7 @@ namespace Cerebrum.Core.ViewModel
                             items.Clear();
                             items.AddRange(result);
                         }
-                    }          
+                    }
                 }
 
                 if (SortSearchPanel != null)
@@ -320,7 +325,7 @@ namespace Cerebrum.Core.ViewModel
                 if (IdentificationSearchPanel != null)
                 {
                     items = items.Where(x => x.Identification == IdentificationSearchPanel).ToList();
-                    if (items.Count == 0) 
+                    if (items.Count == 0)
                     {
                         return;
                     }
@@ -445,7 +450,7 @@ namespace Cerebrum.Core.ViewModel
                             list.AddRange(resultD);
                         }
                         return list;
-                     
+
 
                     case "Ключове слово":
                         var resultK = await SearchInKeyWord(_list, _text);
@@ -551,9 +556,5 @@ namespace Cerebrum.Core.ViewModel
             return list;
         }
 
-        private void OpenAppFolder()
-        {
-            Process.Start("explorer.exe", FileManager.AppPath());
-        }
     }
 }

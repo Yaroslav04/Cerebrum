@@ -36,15 +36,14 @@
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Frame Grid.Column="0" Grid.Row="0" 
-            CornerRadius="10" 
-                 Margin="2,2,2,2"
-               Padding="5,5,5,5"
-                 BackgroundColor="{StaticResource Light}"
-               BorderColor="{StaticResource Primary}">
+        CornerRadius="10" 
+        Margin="2,2,2,2"
+        Padding="5,5,5,5"
+        BackgroundColor="{StaticResource Light}"
+        BorderColor="{StaticResource Primary}">
             <ScrollView VerticalScrollBarVisibility="Never">
                 <StackLayout Spacing="5"
-                             Padding="2,2,2,2">
-
+                Padding="2,2,2,2">
                     <Entry Text="{Binding SearchTextSearchPanel}" PlaceholderColor="{StaticResource Primary}" Placeholder="Пошук за текстом"></Entry>
                     <Picker ItemsSource="{Binding SearchTypeItems}" SelectedItem="{Binding SearchTypeSearchPanel}" BackgroundColor="White" Grid.Column="1"></Picker>
                     <Picker ItemsSource="{Binding AuthorityItems}" SelectedItem="{Binding AuthoritySearchPanel}" BackgroundColor="White" Title="Видавник"></Picker>
@@ -59,11 +58,11 @@
             </ScrollView>
         </Frame>
         <Frame Grid.Column="0" Grid.Row="1" 
-            CornerRadius="10" 
-                 Margin="2,2,2,2"
-                Padding="2,2,2,2"
-                 BackgroundColor="{StaticResource Light}"
-               BorderColor="{StaticResource Primary}">
+        CornerRadius="10" 
+        Margin="2,2,2,2"
+        Padding="2,2,2,2"
+        BackgroundColor="{StaticResource Light}"
+        BorderColor="{StaticResource Primary}">
             <StackLayout 
                 Orientation="Vertical" 
                 Spacing="5"
@@ -73,15 +72,15 @@
             </StackLayout>
         </Frame>
         <Frame Grid.Column="1" Grid.RowSpan="2" 
-            CornerRadius="10" 
-                 Margin="2,2,2,2"
-                 BackgroundColor="{StaticResource Light}"
-               BorderColor="{StaticResource Primary}">
+        CornerRadius="10" 
+        Margin="2,2,2,2"
+        BackgroundColor="{StaticResource Light}"
+        BorderColor="{StaticResource Primary}">
             <CollectionView x:Name="ItemsListView"
-                ItemsSource="{Binding Items}"
-                SelectionMode="Single"
-                SelectedItem="{Binding SelectedItem}"
-                HorizontalOptions="FillAndExpand">
+            ItemsSource="{Binding Items}"
+            SelectionMode="Single"
+            SelectedItem="{Binding SelectedItem}"
+            HorizontalOptions="FillAndExpand">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <ContentView>
@@ -95,7 +94,6 @@
                                             <RowDefinition Height="Auto"></RowDefinition>
                                             <RowDefinition Height="*"></RowDefinition>
                                         </Grid.RowDefinitions>
-
                                         <StackLayout Grid.Row="0">
                                             <StackLayout  Orientation="Horizontal" Spacing="10">
                                                 <Label Text="{Binding Authority}" 

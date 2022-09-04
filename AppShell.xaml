@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Cerebrum"
     xmlns:view="clr-namespace:Cerebrum.Core.View"
-    Shell.FlyoutBehavior="Flyout">
+    Shell.FlyoutBehavior="Disabled">
 
     <FlyoutItem Title="Головна сторінка">
         <ShellContent Route="MainPage" ContentTemplate="{DataTemplate view:MainPage}" />

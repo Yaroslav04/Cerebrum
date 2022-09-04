@@ -12,13 +12,11 @@
         <ToolbarItem Text="Видалити" Command="{Binding DeleteCommand}" />
     </ContentPage.ToolbarItems>
 
-
     <Grid RowSpacing="20" Padding="5,5,5,5">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
         </Grid.RowDefinitions>
-
         <ScrollView>
             <StackLayout Grid.Row="0" Spacing="10" Padding="5,5,5,5" Margin="5,5,5,5" >
                 <Grid ColumnSpacing="10">
@@ -26,22 +24,17 @@
                         <ColumnDefinition Width="1*"></ColumnDefinition>
                         <ColumnDefinition Width="1*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-
                     <StackLayout Grid.Column="1" Spacing="5">
-                        
-
                         <StackLayout>
                             <StackLayout Spacing="5" Grid.Column="0" Orientation="Horizontal">
                                 <Button Command="{Binding AddAuthorityCommand}" HeightRequest="30" Text="+"></Button>
                                 <Picker VerticalOptions="Center" ItemsSource="{Binding AuthorityItems}" SelectedItem="{Binding SelectedAuthority}"></Picker>
                             </StackLayout >
-
                             <StackLayout Spacing="5" Grid.Column="1" Orientation="Horizontal">
                                 <Button Command="{Binding AddTypeCommand}" HeightRequest="30" Text="+"></Button>
                                 <Picker VerticalOptions="Center" ItemsSource="{Binding TypeItems}" SelectedItem="{Binding SelectedType}"></Picker>
                             </StackLayout >
                         </StackLayout>
-
                         <Grid ColumnSpacing="10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*"></ColumnDefinition>
@@ -51,19 +44,15 @@
                             <Entry Grid.Column="1" PlaceholderColor="{StaticResource Primary}" BackgroundColor="White" Text="{Binding DocumentDatePanel}" Placeholder="Дата документу"></Entry>
                         </Grid>
                     </StackLayout>
-
                     <StackLayout Grid.Column="0">
                         <Editor BackgroundColor="White" PlaceholderColor="{StaticResource Primary}" Placeholder="Опис" MinimumHeightRequest="100" Text="{Binding DescriptionPanel}"></Editor>
                     </StackLayout>
                 </Grid>
-
-
                 <Grid ColumnSpacing="10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"></ColumnDefinition>
                         <ColumnDefinition Width="1*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-
                     <!--TegList-->
                     <Frame Grid.Column="0">
                         <StackLayout>
@@ -82,7 +71,6 @@
                                 <Entry Grid.Row="1" Text="{Binding ValueTeg}" Grid.Column="1"></Entry>
                                 <Button Grid.Row="1" Command="{Binding AddTegCommand}" Text="+" Grid.Column="2"></Button>
                             </Grid>
-
                             <CollectionView HeightRequest="200"  Margin="0,10"             
                             x:Name="ItemsListView"
                             ItemsSource="{Binding TegItems}"
@@ -95,15 +83,14 @@
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="*"></RowDefinition>
                                                 </Grid.RowDefinitions>
-
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"></ColumnDefinition>
                                                 </Grid.ColumnDefinitions>
                                                 <Frame Grid.Column="0">
-                                                <StackLayout Orientation="Horizontal" Spacing="5" x:DataType="model:TegClass">
-                                                    <Label TextColor="{StaticResource Gray400}" LineBreakMode="WordWrap"  Text="{Binding Key}"></Label>
-                                                    <Label LineBreakMode="WordWrap"  Text="{Binding Value}"></Label>
-                                                </StackLayout>
+                                                    <StackLayout Orientation="Horizontal" Spacing="5" x:DataType="model:TegClass">
+                                                        <Label TextColor="{StaticResource Gray400}" LineBreakMode="WordWrap"  Text="{Binding Key}"></Label>
+                                                        <Label LineBreakMode="WordWrap"  Text="{Binding Value}"></Label>
+                                                    </StackLayout>
                                                 </Frame>
                                             </Grid>
                                             <ContentView.GestureRecognizers>
@@ -119,7 +106,6 @@
                             </CollectionView>
                         </StackLayout>
                     </Frame>
-
                     <!--FilesList-->
                     <Frame Grid.Column="1">
                         <StackLayout>
@@ -147,7 +133,6 @@
                                     <Button Command="{Binding AddFileCommand}" Text="📂" ></Button>
                                     <Button Command="{Binding AddFileCommand}" Text="+" ></Button>
                                 </StackLayout>
-                                
                             </Grid>
                             <CollectionView HeightRequest="200"  Margin="0,10"
                             Grid.Row="1"
@@ -182,7 +167,6 @@
                 </Grid>
             </StackLayout>
         </ScrollView>
-
         <Grid Grid.Row="1" ColumnSpacing="10" MinimumHeightRequest="30">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"></RowDefinition>
@@ -195,5 +179,4 @@
             <Button Command="{Binding ClearCommand}" Text="Очистити" Grid.Column="1" ></Button>
         </Grid>
     </Grid>
-
 </ContentPage>

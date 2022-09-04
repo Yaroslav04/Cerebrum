@@ -18,20 +18,24 @@ namespace Cerebrum.Core.ViewModel
         public AddViewModel()
         {
             SaveCommand = new Command(Save);
-            DeleteCommand = new Command(Delete);
+            DeleteCommand = new Command(DeleteObject);
             ClearCommand = new Command(async () => await Clear());
             AddTegCommand = new Command(AddTeg);
             AddTypeCommand = new Command(AddType);
             AddAuthorityCommand = new Command(AddAuthority);
             AddFileCommand = new Command(async () => await AddFile());
             CreateFileCommand = new Command(CreateFile);
-            TegTappedCommand = new Command<TegClass>(TegTapped);
-            FileTappedCommand = new Command<FileClass>(FileTapped);
+            TegTappedCommand = new Command<TegClass>(DeleteTeg);
+            FileTappedCommand = new Command<FileClass>(DeleteFile);
 
             AuthorityItems = new ObservableCollection<string>();
             TypeItems = new ObservableCollection<string>();
             TegItems = new ObservableCollection<TegClass>();
-            KeyTegItems = new ObservableCollection<string>(App.Tegs);
+            KeyTegItems = new ObservableCollection<string>
+            {
+                "ККУ(Особлива частина)", "судова справа", "ключове слово"
+            };
+
             FileItems = new ObservableCollection<FileClass>();
 
         }
@@ -49,8 +53,6 @@ namespace Cerebrum.Core.ViewModel
             }
         }
 
-        #region ElementName
-
         private string saveButtonName;
         public string SaveButtonName
         {
@@ -60,9 +62,6 @@ namespace Cerebrum.Core.ViewModel
                 SetProperty(ref saveButtonName, value);
             }
         }
-
-
-        #endregion
 
         #region Teg
         public ObservableCollection<TegClass> TegItems { get; }
@@ -241,12 +240,12 @@ namespace Cerebrum.Core.ViewModel
                 SelectedAuthority = item.Authority;
                 SelectedType = item.Type;
 
-                await LoadFiles(_value);
+                LoadFiles(_value);
                 await LoadTegs(_value);
 
             }
         }
-        private Task LoadFiles(string _value)
+        private void LoadFiles(string _value)
         {
             try
             {
@@ -267,8 +266,6 @@ namespace Cerebrum.Core.ViewModel
             catch
             {
             }
-
-            return Task.CompletedTask;
         }
         private async Task LoadTegs(string _value)
         {
@@ -340,7 +337,7 @@ namespace Cerebrum.Core.ViewModel
             }
             else
             {
-                if (IdentificationPanel != null)
+                if (IdentificationPanel != null & Id == "-1")
                 {
                     if (await App.DataBase.IsObjectExistByIdentification(SelectedAuthority, IdentificationPanel))
                     {
@@ -356,14 +353,22 @@ namespace Cerebrum.Core.ViewModel
                 objectClass.Authority = SelectedAuthority;
                 objectClass.Type = SelectedType;
 
-
+                //if new Object
                 if (Id == "-1")
                 {
+                    //Save Object
                     await App.DataBase.SaveObjectAsync(objectClass);
 
+                    //GetObjectIndex
                     var index = await App.DataBase.GetLastOblectIndex();
-                    if (index != -1)
+
+                    if (index == -1)
                     {
+
+                    }
+                    else
+                    {
+                        //SaveTegs
                         foreach (var teg in TegItems)
                         {
                             TegClass tegClass = new TegClass();
@@ -373,6 +378,7 @@ namespace Cerebrum.Core.ViewModel
                             await App.DataBase.SaveTegAsync(tegClass);
                         }
 
+                        //Create new Object from case number in Tegs
                         foreach (var teg in TegItems)
                         {
                             if (teg.Key == "судова справа")
@@ -390,7 +396,7 @@ namespace Cerebrum.Core.ViewModel
                                     subTeg.Value = teg.Value;
                                     await App.DataBase.SaveTegAsync(subTeg);
                                     foreach (var t in TegItems)
-                                    {                                   
+                                    {
                                         if (t.Key != "судова справа")
                                         {
                                             subTeg.Id = subindex;
@@ -446,11 +452,16 @@ namespace Cerebrum.Core.ViewModel
                         }
                     }
                 }
+
+                //if Object edit
                 else
                 {
+                    //Save Object
                     objectClass.N = int.Parse(Id);
                     await App.DataBase.UpdateObjectAsync(objectClass);
 
+
+                    //Delete Tegs removed from TegList
                     var savedTegs = await App.DataBase.GetTegsByIdAsync(int.Parse(Id));
                     if (savedTegs != null)
                     {
@@ -477,17 +488,44 @@ namespace Cerebrum.Core.ViewModel
                         }
                     }
 
-
+                    //Save Tegs added to TegList
                     foreach (var teg in TegItems)
                     {
                         if (teg.Id == -1)
                         {
                             teg.Id = int.Parse(Id);
                             await App.DataBase.SaveTegAsync(teg);
+
+                            //Create new Object from case number in Tegs
+                            if (teg.Key == "судова справа")
+                            {
+                                if (await App.DataBase.IsCaseNotExist(teg.Value))
+                                {
+                                    ObjectClass subObject = new ObjectClass();
+                                    subObject.Description = DescriptionPanel;
+                                    subObject.Identification = teg.Value;
+                                    await App.DataBase.SaveObjectAsync(subObject);
+                                    var subindex = await App.DataBase.GetLastOblectIndex();
+                                    TegClass subTeg = new TegClass();
+                                    subTeg.Id = subindex;
+                                    subTeg.Key = teg.Key;
+                                    subTeg.Value = teg.Value;
+                                    await App.DataBase.SaveTegAsync(subTeg);
+                                    foreach (var t in TegItems)
+                                    {
+                                        if (t.Key != "судова справа")
+                                        {
+                                            subTeg.Id = subindex;
+                                            subTeg.Key = t.Key;
+                                            subTeg.Value = t.Value;
+                                            await App.DataBase.SaveTegAsync(subTeg);
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-
 
                 await Clear();
                 await Shell.Current.DisplayAlert("Збережено", $"Документ збережено", "ОК");
@@ -511,11 +549,11 @@ namespace Cerebrum.Core.ViewModel
                 }
                 else
                 {
-                    foreach(var item in TegItems)
+                    foreach (var item in TegItems)
                     {
                         if (item.Key == SelectedKeyTeg)
                         {
-                            if(item.Value == ValueTeg)
+                            if (item.Value == ValueTeg)
                             {
                                 await Shell.Current.DisplayAlert("Увага", $"Дублікат тега", "ОК");
                                 return;
@@ -526,9 +564,9 @@ namespace Cerebrum.Core.ViewModel
                     TegItems.Add(
                                 new TegClass
                                 {
-                                Id = -1,
-                                Key = SelectedKeyTeg,
-                                Value = ValueTeg
+                                    Id = -1,
+                                    Key = SelectedKeyTeg,
+                                    Value = ValueTeg
                                 }
                                 );
                     ValueTeg = null;
@@ -563,7 +601,7 @@ namespace Cerebrum.Core.ViewModel
         }
         private async Task AddFile()
         {
-            var file = await PickAndShow();
+            var file = await SelectFile();
             if (file != null)
             {
                 FileItems.Add(new FileClass
@@ -577,7 +615,7 @@ namespace Cerebrum.Core.ViewModel
                 }
             }
         }
-        public async Task<string[]> PickAndShow()
+        public async Task<string[]> SelectFile()
         {
             try
             {
@@ -594,14 +632,14 @@ namespace Cerebrum.Core.ViewModel
                 return null;
             }
         }
-        private void TegTapped(TegClass item)
+        private void DeleteTeg(TegClass item)
         {
             if (item != null)
             {
-                DeleteTeg(item);
+                DeleteTegAsync(item);
             }
         }
-        private async void DeleteTeg(TegClass item)
+        private async void DeleteTegAsync(TegClass item)
         {
             bool answer = await Shell.Current.DisplayAlert("Видалення", $"Видалити тег {item.Key} {item.Value}?", "Так", "Ні");
             if (answer)
@@ -609,14 +647,14 @@ namespace Cerebrum.Core.ViewModel
                 TegItems.Remove(item);
             }
         }
-        private void FileTapped(FileClass item)
+        private void DeleteFile(FileClass item)
         {
             if (item != null)
             {
-                DeleteFile(item);
+                DeleteFileAsync(item);
             }
         }
-        private async void DeleteFile(FileClass item)
+        private async void DeleteFileAsync(FileClass item)
         {
             bool answer = await Shell.Current.DisplayAlert("Видалення", $"Видалити файл {item.Name}?", "Так", "Ні");
             if (answer)
@@ -624,7 +662,7 @@ namespace Cerebrum.Core.ViewModel
                 FileItems.Remove(item);
             }
         }
-        private async void Delete()
+        private async void DeleteObject()
         {
             if (Id != "-1")
             {

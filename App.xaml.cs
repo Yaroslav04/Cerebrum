@@ -17,11 +17,6 @@ public partial class App : Application
         }
     }
 
-    public static List<string> Tegs = new List<string>
-    {
-        "ККУ(Особлива частина)", "судова справа", "ключове слово"
-    };
-
     public App()
 	{
 		InitializeComponent();
