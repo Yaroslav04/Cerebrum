@@ -33,7 +33,7 @@
 		<PackageCertificateThumbprint>FCD738FA7E2510695875C78448F803F09659D35E</PackageCertificateThumbprint>
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 		<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
-		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+		<AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
 		<GenerateTestArtifacts>True</GenerateTestArtifacts>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 	</PropertyGroup>
