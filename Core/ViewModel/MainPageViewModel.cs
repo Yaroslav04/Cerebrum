@@ -51,6 +51,12 @@ namespace Cerebrum.Core.ViewModel
 
         private async void RunAsync()
         {
+            if (!FileManager.IsDataPathExist())
+            {
+                Process.Start("explorer.exe", FileManager.AppPath());
+                return;
+            }
+                
             await LoadAuthNType();
             await LoadItems();
         }

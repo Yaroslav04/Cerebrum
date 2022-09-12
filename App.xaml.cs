@@ -11,7 +11,7 @@ public partial class App : Application
         {
             if (dataBase == null)
             {
-                dataBase = new DataBase(FileManager.AppPath(), new List<string> { "ObjectDataBase.db3", "TegDataBase.db3"});
+                dataBase = new DataBase(FileManager.DataPath(), new List<string> { "ObjectDataBase.db3", "TegDataBase.db3"});
             }
             return dataBase;
         }
