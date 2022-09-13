@@ -230,7 +230,7 @@ namespace Cerebrum.Core.ViewModel
             }
             else
             {
-                Title = "Редагувати картку";
+                Title = $"Редагувати картку #{Id}";
                 SaveButtonName = "Оновити";
                 await Clear();
                 var item = await App.DataBase.GetObjectAsync(int.Parse(_value));

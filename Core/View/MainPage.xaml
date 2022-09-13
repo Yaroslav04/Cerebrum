@@ -20,9 +20,8 @@
     </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Папка" Command="{Binding OpenAppFolderCommand}" />
+        <ToolbarItem Text="📁" Command="{Binding OpenAppFolderCommand}" />
         <ToolbarItem Text="Редагувати" Command="{Binding EditItemCommand}" />
-        <ToolbarItem Text="Додати" Command="{Binding AddItemCommand}" />
     </ContentPage.ToolbarItems>
 
     <Grid>
@@ -44,8 +43,8 @@
             <ScrollView VerticalScrollBarVisibility="Never">
                 <StackLayout Spacing="5"
                 Padding="2,2,2,2">
-                    <Entry Text="{Binding SearchTextSearchPanel}" PlaceholderColor="{StaticResource Primary}" Placeholder="Пошук за текстом"></Entry>
                     <Picker ItemsSource="{Binding SearchTypeItems}" SelectedItem="{Binding SearchTypeSearchPanel}" BackgroundColor="White" Grid.Column="1"></Picker>
+                    <Entry Text="{Binding SearchTextSearchPanel}" PlaceholderColor="{StaticResource Primary}" Placeholder="Пошук за текстом"></Entry>
                     <Picker ItemsSource="{Binding AuthorityItems}" SelectedItem="{Binding AuthoritySearchPanel}" BackgroundColor="White" Title="Видавник"></Picker>
                     <Picker ItemsSource="{Binding TypeItems}" SelectedItem="{Binding TypeSearchPanel}" BackgroundColor="White"  Title="Тип рішення"></Picker>
                     <Entry Text="{Binding IdentificationSearchPanel}" PlaceholderColor="{StaticResource Primary}" Placeholder="Назва документу"></Entry>
@@ -68,7 +67,14 @@
                 Spacing="5"
                 Padding="2,2,2,2">
                 <Button Command="{Binding SearchCommand}" Text="Пошук"></Button>
-                <Button Command="{Binding ClearCommand}" Text="Очистити"></Button>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Command="{Binding ClearCommand}" Text="Очистити"></Button>
+                    <Button Grid.Column="1" Command="{Binding AddItemCommand}" Text="Додати"></Button>
+                </Grid>
             </StackLayout>
         </Frame>
         <Frame Grid.Column="1" Grid.RowSpan="2" 

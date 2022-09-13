@@ -26,7 +26,7 @@ namespace Cerebrum.Core.ViewModel
             Items = new ObservableCollection<ObjectSoketClass>();
             SearchTypeItems = new ObservableCollection<string>
             {
-                "Всюди", "Заголовок", "Ключове слово", "КК України", "Файли",
+                "Всюди", "Заголовок", "Ключове слово", "КК України"
             };
             AuthorityItems = new ObservableCollection<string>();
             TypeItems = new ObservableCollection<string>();
@@ -354,6 +354,12 @@ namespace Cerebrum.Core.ViewModel
                         foreach (var item in items)
                         {
                             ObjectSoketClass objectSoketClass = new ObjectSoketClass(item);
+
+                            if (IsFilesExist(item.N.ToString()))
+                            {
+                                objectSoketClass.Tegs = objectSoketClass.Tegs + $"📄 ";
+                            }
+
                             var tegs = await App.DataBase.GetTegsByIdAsync(item.N);
                             if (tegs.Count > 0)
                             {
@@ -415,6 +421,26 @@ namespace Cerebrum.Core.ViewModel
                     }
                 }
 
+            }
+        }
+
+        private bool IsFilesExist(string _id)
+        {
+            try
+            {
+                var files = Directory.GetFiles(Path.Combine(FileManager.DataPath(), _id));
+                if (files.Length > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
             }
         }
 
